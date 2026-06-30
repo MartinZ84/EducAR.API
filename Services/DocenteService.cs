@@ -1,0 +1,114 @@
+using EducAR.API.Data;
+using EducAR.API.DTOs.Docentes;
+using EducAR.API.Models;
+using EducAR.API.Repositories.Interfaces;
+using EducAR.API.Services.Interfaces;
+
+namespace EducAR.API.Services;
+
+public class DocenteService : IDocenteService
+{
+    private readonly IDocenteRepository _docenteRepository;
+    private readonly IUsuarioRepository _usuarioRepository;
+    private readonly AppDbContext _context;
+
+    private const int ID_ROL_DOCENTE = 2;
+
+    public DocenteService(
+        IDocenteRepository docenteRepository,
+        IUsuarioRepository usuarioRepository,
+        AppDbContext context)
+    {
+        _docenteRepository = docenteRepository;
+        _usuarioRepository = usuarioRepository;
+        _context = context;
+    }
+
+    public async Task<List<DocenteResponseDto>> ObtenerTodos(int idEscuela)
+    {
+        var docentes = await _docenteRepository.ObtenerTodos(idEscuela);
+        return docentes.Select(MapearAResponseDto).ToList();
+    }
+
+    public async Task<DocenteResponseDto?> ObtenerPorId(int idDocente, int idEscuela)
+    {
+        var docente = await _docenteRepository.ObtenerPorId(idDocente, idEscuela);
+        return docente is null ? null : MapearAResponseDto(docente);
+    }
+
+    public async Task<(bool exito, string mensaje, DocenteResponseDto? docente)> Crear(DocenteCreateDto dto, int idEscuela)
+    {
+        var existe = await _usuarioRepository.ExisteNombreUsuario(dto.NombreUsuario, idEscuela);
+        if (existe)
+            return (false, "El nombre de usuario ya existe en esta escuela.", null);
+
+        // Transacción: Usuario + Docente se crean juntos o no se crea ninguno
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try
+        {
+            var usuario = new Usuario
+            {
+                IdRol          = ID_ROL_DOCENTE,
+                IdEscuela      = idEscuela,
+                Dni            = dto.Dni,
+                Nombre         = dto.Nombre,
+                Apellido       = dto.Apellido,
+                Email          = dto.Email,
+                NombreUsuario  = dto.NombreUsuario,
+                HashContrasena = BCrypt.Net.BCrypt.HashPassword(dto.Contrasena),
+                Activo         = true
+            };
+            await _usuarioRepository.Crear(usuario);
+
+            var docente = new Docente
+            {
+                IdUsuario = usuario.IdUsuario,
+                Activo    = true
+            };
+            await _docenteRepository.Crear(docente);
+
+            await transaction.CommitAsync();
+
+            var completo = await _docenteRepository.ObtenerPorId(docente.IdDocente, idEscuela);
+            return (true, "Docente creado correctamente.", MapearAResponseDto(completo!));
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            return (false, "Ocurrió un error al crear el docente.", null);
+        }
+    }
+
+    public async Task<(bool exito, string mensaje)> Actualizar(int idDocente, int idEscuela, DocenteUpdateDto dto)
+    {
+        var docente = await _docenteRepository.ObtenerPorId(idDocente, idEscuela);
+        if (docente is null)
+            return (false, "Docente no encontrado.");
+
+        docente.Usuario.Nombre   = dto.Nombre;
+        docente.Usuario.Apellido = dto.Apellido;
+        docente.Usuario.Email    = dto.Email;
+        docente.Usuario.Activo   = dto.Activo;
+        docente.Activo           = dto.Activo;
+
+        await _docenteRepository.Actualizar(docente);
+        return (true, "Docente actualizado correctamente.");
+    }
+
+    public async Task<bool> Eliminar(int idDocente, int idEscuela)
+    {
+        return await _docenteRepository.Eliminar(idDocente, idEscuela);
+    }
+
+    private static DocenteResponseDto MapearAResponseDto(Docente d) => new()
+    {
+        IdDocente     = d.IdDocente,
+        IdUsuario     = d.IdUsuario,
+        Dni           = d.Usuario.Dni,
+        Nombre        = d.Usuario.Nombre,
+        Apellido      = d.Usuario.Apellido,
+        Email         = d.Usuario.Email,
+        NombreUsuario = d.Usuario.NombreUsuario,
+        Activo        = d.Activo
+    };
+}

@@ -1,0 +1,13 @@
+using EducAR.API.Models;
+
+namespace EducAR.API.Repositories.Interfaces;
+
+public interface IUsuarioRepository
+{
+    Task<List<Usuario>> ObtenerTodos(int idEscuela);
+    Task<Usuario?> ObtenerPorId(int idUsuario, int idEscuela);
+    Task<bool> ExisteNombreUsuario(string nombreUsuario, int idEscuela);
+    Task<Usuario> Crear(Usuario usuario);
+    Task<bool> Actualizar(Usuario usuario);
+    Task<bool> Eliminar(int idUsuario, int idEscuela);
+}
