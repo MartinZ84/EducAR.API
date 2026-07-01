@@ -28,7 +28,16 @@ public class UsuarioService : IUsuarioService
 
     public async Task<(bool exito, string mensaje, UsuarioResponseDto? usuario)> Crear(UsuarioCreateDto dto)
     {
-        // Validar duplicado
+         // Validar duplicados
+        if (await _usuarioRepository.ExisteNombreUsuario(dto.NombreUsuario, dto.IdEscuela))
+        return (false, "El nombre de usuario ya existe en esta escuela.", null);
+
+        if (await _usuarioRepository.ExisteDni(dto.Dni, dto.IdEscuela))
+            return (false, "Ya existe un usuario con ese DNI en esta escuela.", null);
+
+        if (await _usuarioRepository.ExisteEmail(dto.Email, dto.IdEscuela))
+            return (false, "Ya existe un usuario con ese email en esta escuela.", null);
+       
         var existe = await _usuarioRepository.ExisteNombreUsuario(dto.NombreUsuario, dto.IdEscuela);
         if (existe)
             return (false, "El nombre de usuario ya existe en esta escuela.", null);
@@ -58,7 +67,13 @@ public class UsuarioService : IUsuarioService
     {
         var usuario = await _usuarioRepository.ObtenerPorId(idUsuario, idEscuela);
         if (usuario is null)
-            return (false, "Usuario no encontrado.");
+            return (false, "Usuario no encontrado.");        
+
+        if (await _usuarioRepository.ExisteDni(dto.Dni, idEscuela, idUsuario))
+            return (false, "Ya existe un usuario con ese DNI en esta escuela.");
+
+        if (await _usuarioRepository.ExisteEmail(dto.Email, idEscuela, idUsuario))
+            return (false, "Ya existe un usuario con ese email en esta escuela.");
 
         usuario.IdRol    = dto.IdRol;
         usuario.Dni      = dto.Dni;
@@ -90,4 +105,5 @@ public class UsuarioService : IUsuarioService
         Activo        = u.Activo,
         UltimoAcceso  = u.UltimoAcceso
     };
+    
 }

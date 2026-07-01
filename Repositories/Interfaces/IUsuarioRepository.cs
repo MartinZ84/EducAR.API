@@ -10,4 +10,6 @@ public interface IUsuarioRepository
     Task<Usuario> Crear(Usuario usuario);
     Task<bool> Actualizar(Usuario usuario);
     Task<bool> Eliminar(int idUsuario, int idEscuela);
+    Task<bool> ExisteDni(int dni, int idEscuela, int? excluirIdUsuario = null);
+    Task<bool> ExisteEmail(string email, int idEscuela, int? excluirIdUsuario = null);
 }

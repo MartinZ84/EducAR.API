@@ -42,6 +42,12 @@ public class DocenteService : IDocenteService
         if (existe)
             return (false, "El nombre de usuario ya existe en esta escuela.", null);
 
+        if (await _usuarioRepository.ExisteDni(dto.Dni, idEscuela))
+            return (false, "Ya existe un usuario con ese DNI en esta escuela.", null);
+
+        if (await _usuarioRepository.ExisteEmail(dto.Email, idEscuela))
+            return (false, "Ya existe un usuario con ese email en esta escuela.", null);
+
         // Transacción: Usuario + Docente se crean juntos o no se crea ninguno
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
@@ -64,7 +70,8 @@ public class DocenteService : IDocenteService
             {
                 IdUsuario = usuario.IdUsuario,
                 Activo    = true
-            };
+            };           
+
             await _docenteRepository.Crear(docente);
 
             await transaction.CommitAsync();

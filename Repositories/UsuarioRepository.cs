@@ -62,4 +62,20 @@ public class UsuarioRepository : IUsuarioRepository
         await _context.SaveChangesAsync();
         return true;
     }
+
+    public async Task<bool> ExisteDni(int dni, int idEscuela, int? excluirIdUsuario = null)
+    {
+        return await _context.Usuarios
+            .AnyAsync(u => u.Dni == dni &&
+                        u.IdEscuela == idEscuela &&
+                        (excluirIdUsuario == null || u.IdUsuario != excluirIdUsuario));
+    }
+
+    public async Task<bool> ExisteEmail(string email, int idEscuela, int? excluirIdUsuario = null)
+    {
+        return await _context.Usuarios
+            .AnyAsync(u => u.Email == email &&
+                        u.IdEscuela == idEscuela &&
+                        (excluirIdUsuario == null || u.IdUsuario != excluirIdUsuario));
+    }
 }

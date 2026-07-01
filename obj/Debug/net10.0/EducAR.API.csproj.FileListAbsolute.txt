@@ -146,6 +146,7 @@ C:\Users\mzanche\Documents\Programacion dispositivos moviles\EducAR_Gestion\Educ
 C:\Users\mzanche\Documents\Programacion dispositivos moviles\EducAR_Gestion\EducAR.API\obj\Debug\net10.0\EducAR.API.csproj.CoreCompileInputs.cache
 C:\Users\mzanche\Documents\Programacion dispositivos moviles\EducAR_Gestion\EducAR.API\obj\Debug\net10.0\EducAR.API.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\mzanche\Documents\Programacion dispositivos moviles\EducAR_Gestion\EducAR.API\obj\Debug\net10.0\EducAR.API.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\mzanche\Documents\Programacion dispositivos moviles\EducAR_Gestion\EducAR.API\obj\Debug\net10.0\EducAR.API.sourcelink.json
 C:\Users\mzanche\Documents\Programacion dispositivos moviles\EducAR_Gestion\EducAR.API\obj\Debug\net10.0\rjimswa.dswa.cache.json
 C:\Users\mzanche\Documents\Programacion dispositivos moviles\EducAR_Gestion\EducAR.API\obj\Debug\net10.0\rjsmrazor.dswa.cache.json
 C:\Users\mzanche\Documents\Programacion dispositivos moviles\EducAR_Gestion\EducAR.API\obj\Debug\net10.0\rjsmcshtml.dswa.cache.json
