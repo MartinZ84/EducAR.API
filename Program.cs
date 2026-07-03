@@ -51,6 +51,8 @@ builder.Services.AddScoped<IMateriaRepository, MateriaRepository>();
 builder.Services.AddScoped<IMateriaService, MateriaService>();
 builder.Services.AddScoped<ICursoRepository, CursoRepository>();
 builder.Services.AddScoped<ICursoService, CursoService>();
+builder.Services.AddScoped<IPeriodoEvaluacionRepository, PeriodoEvaluacionRepository>();
+builder.Services.AddScoped<IPeriodoEvaluacionService, PeriodoEvaluacionService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
