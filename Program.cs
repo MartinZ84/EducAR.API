@@ -45,6 +45,12 @@ builder.Services.AddScoped<ITutorRepository, TutorRepository>();
 builder.Services.AddScoped<ITutorService, TutorService>();
 builder.Services.AddScoped<IAlumnoRepository, AlumnoRepository>();
 builder.Services.AddScoped<IAlumnoService, AlumnoService>();
+builder.Services.AddScoped<ICicloLectivoRepository, CicloLectivoRepository>();
+builder.Services.AddScoped<ICicloLectivoService, CicloLectivoService>();
+builder.Services.AddScoped<IMateriaRepository, MateriaRepository>();
+builder.Services.AddScoped<IMateriaService, MateriaService>();
+builder.Services.AddScoped<ICursoRepository, CursoRepository>();
+builder.Services.AddScoped<ICursoService, CursoService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
