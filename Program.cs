@@ -53,6 +53,10 @@ builder.Services.AddScoped<ICursoRepository, CursoRepository>();
 builder.Services.AddScoped<ICursoService, CursoService>();
 builder.Services.AddScoped<IPeriodoEvaluacionRepository, PeriodoEvaluacionRepository>();
 builder.Services.AddScoped<IPeriodoEvaluacionService, PeriodoEvaluacionService>();
+builder.Services.AddScoped<IAsistenciaRepository, AsistenciaRepository>();
+builder.Services.AddScoped<IAsistenciaService, AsistenciaService>();
+builder.Services.AddScoped<ICalificacionRepository, CalificacionRepository>();
+builder.Services.AddScoped<ICalificacionService, CalificacionService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

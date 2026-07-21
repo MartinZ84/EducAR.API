@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("EducAR.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9f77e5d7608fa2e14613ea6ad3dd889cc76d4785")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4ac3dce093e3f9a9b336dbb3ee178394a4b475d5")]
 [assembly: System.Reflection.AssemblyProductAttribute("EducAR.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EducAR.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
