@@ -11,4 +11,6 @@ public interface IAlumnoCursoRepository
     Task<AlumnoCurso> Crear(AlumnoCurso alumnoCurso);
     Task<bool> Eliminar(int idAlumnoCurso, int idEscuela);
     Task<bool> EstaInscriptoEnCiclo(int idAlumno, int idCicloLectivo, int idEscuela);
+    Task<AlumnoCurso?> ObtenerInscripcionInactiva(int idAlumno, int idCurso);
+    Task<AlumnoCurso> Reactivar(AlumnoCurso alumnoCurso);
 }

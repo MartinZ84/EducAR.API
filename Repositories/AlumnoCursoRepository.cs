@@ -82,4 +82,23 @@ public class AlumnoCursoRepository : IAlumnoCursoRepository
                             ac.Curso.IdEscuela == idEscuela &&
                             ac.Curso.IdCicloLectivo == idCicloLectivo);
     }
+
+    public async Task<AlumnoCurso?> ObtenerInscripcionInactiva(int idAlumno, int idCurso)
+    {
+        return await _context.AlumnoCursos
+            .Include(ac => ac.Alumno)
+            .Include(ac => ac.Curso).ThenInclude(c => c.CicloLectivo)
+            .FirstOrDefaultAsync(ac => ac.IdAlumno == idAlumno &&
+                                    ac.IdCurso == idCurso &&
+                                    !ac.Activo);
+    }
+
+    public async Task<AlumnoCurso> Reactivar(AlumnoCurso alumnoCurso)
+    {
+        alumnoCurso.Activo   = true;
+        alumnoCurso.FechaAct = DateTime.Now;
+        _context.AlumnoCursos.Update(alumnoCurso);
+        await _context.SaveChangesAsync();
+        return alumnoCurso;
+    }
 }

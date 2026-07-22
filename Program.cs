@@ -63,6 +63,10 @@ builder.Services.AddScoped<IAlumnoCursoRepository, AlumnoCursoRepository>();
 builder.Services.AddScoped<IAlumnoCursoService, AlumnoCursoService>();
 builder.Services.AddScoped<IMensajeRepository, MensajeRepository>();
 builder.Services.AddScoped<IMensajeService, MensajeService>();
+builder.Services.AddScoped<IAlumnoTutorRepository, AlumnoTutorRepository>();
+builder.Services.AddScoped<IAlumnoTutorService, AlumnoTutorService>();
+builder.Services.AddScoped<IDocenteMateriaCursoRepository, DocenteMateriaCursoRepository>();
+builder.Services.AddScoped<IDocenteMateriaCursoService, DocenteMateriaCursoService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

@@ -106,4 +106,42 @@ public class UsuarioService : IUsuarioService
         UltimoAcceso  = u.UltimoAcceso
     };
     
+    public async Task<(bool exito, string mensaje)> CambiarContrasena(int idUsuario, CambiarContrasenaDto dto)
+    {
+        if (dto.NuevaContrasena != dto.ConfirmarContrasena)
+            return (false, "La nueva contraseña y la confirmación no coinciden.");
+
+        if (dto.NuevaContrasena.Length < 6)
+            return (false, "La nueva contraseña debe tener al menos 6 caracteres.");
+
+        var usuario = await _usuarioRepository.ObtenerPorIdSinEscuela(idUsuario);
+        if (usuario is null)
+            return (false, "Usuario no encontrado.");
+
+        if (!BCrypt.Net.BCrypt.Verify(dto.ContrasenaActual, usuario.HashContrasena))
+            return (false, "La contraseña actual es incorrecta.");
+
+        usuario.HashContrasena = BCrypt.Net.BCrypt.HashPassword(dto.NuevaContrasena);
+        usuario.FechaAct       = DateTime.Now;
+        await _usuarioRepository.Actualizar(usuario);
+
+        return (true, "Contraseña actualizada correctamente.");
+    }
+
+    public async Task<PerfilResponseDto?> ObtenerPerfil(int idUsuario)
+    {
+        var usuario = await _usuarioRepository.ObtenerPerfilCompleto(idUsuario);
+        if (usuario is null) return null;
+
+        return new PerfilResponseDto
+        {
+            IdUsuario      = usuario.IdUsuario,
+            NombreCompleto = $"{usuario.Nombre} {usuario.Apellido}",
+            NombreUsuario  = usuario.NombreUsuario,
+            Email          = usuario.Email,
+            Rol            = usuario.Rol.Nombre,
+            NombreEscuela  = usuario.Escuela.Nombre,
+            UltimoAcceso   = usuario.UltimoAcceso
+        };
+    }
 }

@@ -30,10 +30,18 @@ public class UsuarioRepository : IUsuarioRepository
             .FirstOrDefaultAsync(u => u.IdUsuario == idUsuario && u.IdEscuela == idEscuela);
     }
 
+    // public async Task<bool> ExisteNombreUsuario(string nombreUsuario, int idEscuela)
+    // {
+    //     return await _context.Usuarios
+    //         .AnyAsync(u => u.NombreUsuario == nombreUsuario && u.IdEscuela == idEscuela);
+    // }
+
     public async Task<bool> ExisteNombreUsuario(string nombreUsuario, int idEscuela)
     {
         return await _context.Usuarios
-            .AnyAsync(u => u.NombreUsuario == nombreUsuario && u.IdEscuela == idEscuela);
+            .AnyAsync(u => u.NombreUsuario == nombreUsuario &&
+                        u.IdEscuela == idEscuela &&
+                        u.Activo);  // ← agregar esto
     }
 
     public async Task<Usuario> Crear(Usuario usuario)
@@ -63,11 +71,28 @@ public class UsuarioRepository : IUsuarioRepository
         return true;
     }
 
+    // public async Task<bool> ExisteDni(int dni, int idEscuela, int? excluirIdUsuario = null)
+    // {
+    //     return await _context.Usuarios
+    //         .AnyAsync(u => u.Dni == dni &&
+    //                     u.IdEscuela == idEscuela &&
+    //                     (excluirIdUsuario == null || u.IdUsuario != excluirIdUsuario));
+    // }
+
+    // public async Task<bool> ExisteEmail(string email, int idEscuela, int? excluirIdUsuario = null)
+    // {
+    //     return await _context.Usuarios
+    //         .AnyAsync(u => u.Email == email &&
+    //                     u.IdEscuela == idEscuela &&
+    //                     (excluirIdUsuario == null || u.IdUsuario != excluirIdUsuario));
+    // }
+    
     public async Task<bool> ExisteDni(int dni, int idEscuela, int? excluirIdUsuario = null)
     {
         return await _context.Usuarios
             .AnyAsync(u => u.Dni == dni &&
                         u.IdEscuela == idEscuela &&
+                        u.Activo &&  // ← agregar esto
                         (excluirIdUsuario == null || u.IdUsuario != excluirIdUsuario));
     }
 
@@ -76,6 +101,28 @@ public class UsuarioRepository : IUsuarioRepository
         return await _context.Usuarios
             .AnyAsync(u => u.Email == email &&
                         u.IdEscuela == idEscuela &&
+                        u.Activo &&  // ← agregar esto
                         (excluirIdUsuario == null || u.IdUsuario != excluirIdUsuario));
+    }
+    public async Task<Usuario?> ObtenerPorIdSinEscuela(int idUsuario)
+    {
+        return await _context.Usuarios
+            .FirstOrDefaultAsync(u => u.IdUsuario == idUsuario && u.Activo);
+    }
+
+    public async Task<Usuario?> ObtenerPerfilCompleto(int idUsuario)
+    {
+        return await _context.Usuarios
+            .Include(u => u.Rol)
+            .Include(u => u.Escuela)
+            .FirstOrDefaultAsync(u => u.IdUsuario == idUsuario && u.Activo);
+    }
+
+    public async Task<Usuario?> ObtenerUsuarioInactivoPorNombre(string nombreUsuario, int idEscuela)
+    {
+        return await _context.Usuarios
+            .FirstOrDefaultAsync(u => u.NombreUsuario == nombreUsuario &&
+                                    u.IdEscuela == idEscuela &&
+                                    !u.Activo);
     }
 }

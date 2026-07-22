@@ -55,4 +55,21 @@ public class TutorRepository : ITutorRepository
         await _context.SaveChangesAsync();
         return true;
     }
+
+    public async Task<Tutor?> ObtenerPorUsuarioInactivo(int idUsuario)
+    {
+        return await _context.Tutores
+            .Include(t => t.Usuario)
+            .FirstOrDefaultAsync(t => t.IdUsuario == idUsuario && !t.Usuario.Activo);
+    }
+
+    public async Task<Tutor> Reactivar(Tutor tutor)
+    {
+        tutor.Usuario.Activo   = true;
+        tutor.Usuario.FechaAct = DateTime.Now;
+        tutor.FechaAct         = DateTime.Now;
+        _context.Tutores.Update(tutor);
+        await _context.SaveChangesAsync();
+        return tutor;
+    }
 }

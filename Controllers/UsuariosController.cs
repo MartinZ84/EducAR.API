@@ -75,4 +75,27 @@ public class UsuariosController : ControllerBase
 
         return Ok(new { mensaje = "Usuario dado de baja correctamente." });
     }
+
+    // PATCH api/usuarios/cambiar-contrasena
+    [HttpPatch("cambiar-contrasena")]
+    public async Task<IActionResult> CambiarContrasena([FromBody] CambiarContrasenaDto dto)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
+        var idUsuario = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var (exito, mensaje) = await _usuarioService.CambiarContrasena(idUsuario, dto);
+        if (!exito) return BadRequest(new { mensaje });
+
+        return Ok(new { mensaje });
+    }
+
+    // GET api/usuarios/perfil
+    [HttpGet("perfil")]
+    public async Task<IActionResult> ObtenerPerfil()
+    {
+        var idUsuario = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var perfil = await _usuarioService.ObtenerPerfil(idUsuario);
+        if (perfil is null) return NotFound(new { mensaje = "Usuario no encontrado." });
+        return Ok(perfil);
+    }
 }

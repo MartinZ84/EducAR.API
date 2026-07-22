@@ -35,11 +35,11 @@ public class DocenteService : IDocenteService
         var docente = await _docenteRepository.ObtenerPorId(idDocente, idEscuela);
         return docente is null ? null : MapearAResponseDto(docente);
     }
-
+  
     public async Task<(bool exito, string mensaje, DocenteResponseDto? docente)> Crear(DocenteCreateDto dto, int idEscuela)
     {
-        var existe = await _usuarioRepository.ExisteNombreUsuario(dto.NombreUsuario, idEscuela);
-        if (existe)
+        // Validar duplicado activo
+        if (await _usuarioRepository.ExisteNombreUsuario(dto.NombreUsuario, idEscuela))
             return (false, "El nombre de usuario ya existe en esta escuela.", null);
 
         if (await _usuarioRepository.ExisteDni(dto.Dni, idEscuela))
@@ -48,36 +48,66 @@ public class DocenteService : IDocenteService
         if (await _usuarioRepository.ExisteEmail(dto.Email, idEscuela))
             return (false, "Ya existe un usuario con ese email en esta escuela.", null);
 
-        // Transacción: Usuario + Docente se crean juntos o no se crea ninguno
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
-            var usuario = new Usuario
-            {
-                IdRol          = ID_ROL_DOCENTE,
-                IdEscuela      = idEscuela,
-                Dni            = dto.Dni,
-                Nombre         = dto.Nombre,
-                Apellido       = dto.Apellido,
-                Email          = dto.Email,
-                NombreUsuario  = dto.NombreUsuario,
-                HashContrasena = BCrypt.Net.BCrypt.HashPassword(dto.Contrasena),
-                Activo         = true
-            };
-            await _usuarioRepository.Crear(usuario);
+            // Verificar si existe usuario inactivo con ese nombre
+            var usuarioInactivo = await _usuarioRepository
+                .ObtenerUsuarioInactivoPorNombre(dto.NombreUsuario, idEscuela);
 
-            var docente = new Docente
+            Usuario usuario;
+            if (usuarioInactivo is not null)
             {
-                IdUsuario = usuario.IdUsuario,
-                Activo    = true
-            };           
+                // Reactivar usuario existente
+                usuarioInactivo.Nombre         = dto.Nombre;
+                usuarioInactivo.Apellido       = dto.Apellido;
+                usuarioInactivo.Email          = dto.Email;
+                usuarioInactivo.Dni            = dto.Dni;
+                usuarioInactivo.HashContrasena = BCrypt.Net.BCrypt.HashPassword(dto.Contrasena);
+                usuarioInactivo.Activo         = true;
+                usuarioInactivo.FechaAct       = DateTime.Now;
+                await _usuarioRepository.Actualizar(usuarioInactivo);
+                usuario = usuarioInactivo;
+            }
+            else
+            {
+                // Crear nuevo usuario
+                usuario = new Usuario
+                {
+                    IdRol          = ID_ROL_DOCENTE,
+                    IdEscuela      = idEscuela,
+                    Dni            = dto.Dni,
+                    Nombre         = dto.Nombre,
+                    Apellido       = dto.Apellido,
+                    Email          = dto.Email,
+                    NombreUsuario  = dto.NombreUsuario,
+                    HashContrasena = BCrypt.Net.BCrypt.HashPassword(dto.Contrasena),
+                    Activo         = true
+                };
+                await _usuarioRepository.Crear(usuario);
+            }
 
-            await _docenteRepository.Crear(docente);
+            // Verificar si existe docente inactivo para ese usuario
+            var docenteInactivo = await _docenteRepository.ObtenerPorUsuarioInactivo(usuario.IdUsuario);
+            if (docenteInactivo is not null)
+            {
+                await _docenteRepository.Reactivar(docenteInactivo);
+            }
+            else
+            {
+                var docente = new Docente
+                {
+                    IdUsuario = usuario.IdUsuario,
+                    Activo    = true
+                };
+                await _docenteRepository.Crear(docente);
+            }
 
             await transaction.CommitAsync();
 
-            var completo = await _docenteRepository.ObtenerPorId(docente.IdDocente, idEscuela);
-            return (true, "Docente creado correctamente.", MapearAResponseDto(completo!));
+            var completo = await _docenteRepository.ObtenerTodos(idEscuela);
+            var docenteCreado = completo.FirstOrDefault(d => d.IdUsuario == usuario.IdUsuario);
+            return (true, "Docente creado correctamente.", MapearAResponseDto(docenteCreado!));
         }
         catch
         {
@@ -85,7 +115,6 @@ public class DocenteService : IDocenteService
             return (false, "Ocurrió un error al crear el docente.", null);
         }
     }
-
     public async Task<(bool exito, string mensaje)> Actualizar(int idDocente, int idEscuela, DocenteUpdateDto dto)
     {
         var docente = await _docenteRepository.ObtenerPorId(idDocente, idEscuela);

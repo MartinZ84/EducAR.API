@@ -33,10 +33,9 @@ public class AlumnoCursoService : IAlumnoCursoService
         return inscripciones.Select(MapearAResponseDto).ToList();
     }
   
-
+   
     public async Task<(bool exito, string mensaje, AlumnoCursoResponseDto? inscripcion)> Inscribir(AlumnoCursoCreateDto dto, int idEscuela)
     {
-        // Validar que el curso existe y pertenece a la escuela
         var curso = await _cursoRepository.ObtenerPorId(dto.IdCurso, idEscuela);
         if (curso is null)
             return (false, "El curso no existe.", null);
@@ -44,15 +43,25 @@ public class AlumnoCursoService : IAlumnoCursoService
         if (!curso.Activo)
             return (false, "No se puede inscribir alumnos en un curso inactivo.", null);
 
-        // Control 1: mismo alumno, mismo curso
+        // Validar inscripción activa duplicada
         if (await _alumnoCursoRepository.ExisteInscripcion(dto.IdAlumno, dto.IdCurso))
             return (false, "El alumno ya está inscripto en este curso.", null);
 
-        // Control 2: mismo alumno, mismo ciclo lectivo, misma escuela
+        // Validar mismo ciclo lectivo
         if (await _alumnoCursoRepository.EstaInscriptoEnCiclo(dto.IdAlumno, curso.IdCicloLectivo, idEscuela))
             return (false, $"El alumno ya está inscripto en otro curso del ciclo lectivo {curso.CicloLectivo.Anio}. " +
                         $"Debe desinscribirlo primero.", null);
 
+        // Reactivar si existe inactiva
+        var inactiva = await _alumnoCursoRepository.ObtenerInscripcionInactiva(dto.IdAlumno, dto.IdCurso);
+        if (inactiva is not null)
+        {
+            var reactivada = await _alumnoCursoRepository.Reactivar(inactiva);
+            var completaReactivada = await _alumnoCursoRepository.ObtenerPorId(reactivada.IdAlumnoCurso);
+            return (true, "Inscripción reactivada correctamente.", MapearAResponseDto(completaReactivada!));
+        }
+
+        // Crear nueva inscripción
         var inscripcion = new AlumnoCurso
         {
             IdAlumno = dto.IdAlumno,
@@ -64,7 +73,6 @@ public class AlumnoCursoService : IAlumnoCursoService
         var completa = await _alumnoCursoRepository.ObtenerPorId(creada.IdAlumnoCurso);
         return (true, "Alumno inscripto correctamente.", MapearAResponseDto(completa!));
     }
-
     public async Task<(bool exito, string mensaje)> Desinscribir(int idAlumnoCurso, int idEscuela)
     {
         var inscripcion = await _alumnoCursoRepository.ObtenerPorId(idAlumnoCurso);

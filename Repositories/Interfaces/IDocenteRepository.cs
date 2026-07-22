@@ -9,4 +9,6 @@ public interface IDocenteRepository
     Task<Docente> Crear(Docente docente);
     Task<bool> Actualizar(Docente docente);
     Task<bool> Eliminar(int idDocente, int idEscuela);
+    Task<Docente?> ObtenerPorUsuarioInactivo(int idUsuario);
+    Task<Docente> Reactivar(Docente docente);
 }

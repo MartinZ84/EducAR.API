@@ -10,5 +10,6 @@ public class TutorResponseDto
     public string Email { get; set; } = null!;
     public string NombreUsuario { get; set; } = null!;
     public bool EsResponsable { get; set; }
+     public bool Activo { get; set; }
    
 }

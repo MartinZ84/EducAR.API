@@ -56,4 +56,20 @@ public class DocenteRepository : IDocenteRepository
         await _context.SaveChangesAsync();
         return true;
     }
+
+    public async Task<Docente?> ObtenerPorUsuarioInactivo(int idUsuario)
+    {
+        return await _context.Docentes
+            .Include(d => d.Usuario)
+            .FirstOrDefaultAsync(d => d.IdUsuario == idUsuario && !d.Activo);
+    }
+
+    public async Task<Docente> Reactivar(Docente docente)
+    {
+        docente.Activo   = true;
+        docente.FechaAct = DateTime.Now;
+        _context.Docentes.Update(docente);
+        await _context.SaveChangesAsync();
+        return docente;
+    }
 }

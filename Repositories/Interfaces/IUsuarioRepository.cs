@@ -12,4 +12,7 @@ public interface IUsuarioRepository
     Task<bool> Eliminar(int idUsuario, int idEscuela);
     Task<bool> ExisteDni(int dni, int idEscuela, int? excluirIdUsuario = null);
     Task<bool> ExisteEmail(string email, int idEscuela, int? excluirIdUsuario = null);
+    Task<Usuario?> ObtenerPorIdSinEscuela(int idUsuario);
+    Task<Usuario?> ObtenerPerfilCompleto(int idUsuario);
+    Task<Usuario?> ObtenerUsuarioInactivoPorNombre(string nombreUsuario, int idEscuela);
 }
