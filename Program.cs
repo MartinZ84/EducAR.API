@@ -57,6 +57,12 @@ builder.Services.AddScoped<IAsistenciaRepository, AsistenciaRepository>();
 builder.Services.AddScoped<IAsistenciaService, AsistenciaService>();
 builder.Services.AddScoped<ICalificacionRepository, CalificacionRepository>();
 builder.Services.AddScoped<ICalificacionService, CalificacionService>();
+builder.Services.AddScoped<IBoletinRepository, BoletinRepository>();
+builder.Services.AddScoped<IBoletinService, BoletinService>();
+builder.Services.AddScoped<IAlumnoCursoRepository, AlumnoCursoRepository>();
+builder.Services.AddScoped<IAlumnoCursoService, AlumnoCursoService>();
+builder.Services.AddScoped<IMensajeRepository, MensajeRepository>();
+builder.Services.AddScoped<IMensajeService, MensajeService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
