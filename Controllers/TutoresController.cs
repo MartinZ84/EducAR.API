@@ -21,12 +21,19 @@ public class TutoresController : ControllerBase
     private int IdEscuelaActual =>
         int.Parse(User.FindFirstValue("IdEscuela")!);
 
+    // [HttpGet]
+    // [Authorize(Roles = "Administrador,Docente")]
+    // public async Task<IActionResult> ObtenerTodos()
+    // {
+    //     var tutores = await _tutorService.ObtenerTodos(IdEscuelaActual);
+    //     return Ok(tutores);
+    // }
     [HttpGet]
     [Authorize(Roles = "Administrador,Docente")]
-    public async Task<IActionResult> ObtenerTodos()
+    public async Task<IActionResult> ObtenerTodos([FromQuery] int pagina = 1, [FromQuery] int cantidad = 10)
     {
-        var tutores = await _tutorService.ObtenerTodos(IdEscuelaActual);
-        return Ok(tutores);
+        var resultado = await _tutorService.ObtenerTodosPaginado(IdEscuelaActual, pagina, cantidad);
+        return Ok(resultado);
     }
 
     [HttpGet("{id}")]
@@ -69,7 +76,7 @@ public class TutoresController : ControllerBase
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
         var (exito, mensaje) = await _tutorService.Actualizar(id, IdEscuelaActual, dto);
-        
+
         if (!exito)
         {
             // Verificar si el mensaje indica un conflicto de datos duplicados
@@ -77,13 +84,13 @@ public class TutoresController : ControllerBase
             {
                 return Conflict(new { mensaje }); // 409 Conflict
             }
-            
+
             // Si no es un conflicto de duplicados, puede ser "Tutor no encontrado"
             if (mensaje.Contains("no encontrado"))
             {
                 return NotFound(new { mensaje }); // 404 Not Found
             }
-            
+
             // Otros errores de validación
             return BadRequest(new { mensaje }); // 400 Bad Request
         }

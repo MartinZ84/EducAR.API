@@ -125,4 +125,15 @@ public class UsuarioRepository : IUsuarioRepository
                                     u.IdEscuela == idEscuela &&
                                     !u.Activo);
     }
+
+    public Task<IQueryable<Usuario>> ObtenerQueryable(int idEscuela)
+    {
+        var query = _context.Usuarios
+            .Include(u => u.Rol)
+            .Where(u => u.IdEscuela == idEscuela)
+            .OrderBy(u => u.Apellido)
+            .AsQueryable();
+
+        return Task.FromResult(query);
+    }
 }

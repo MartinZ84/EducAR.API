@@ -3,6 +3,8 @@ using EducAR.API.DTOs.Tutores;
 using EducAR.API.Models;
 using EducAR.API.Repositories.Interfaces;
 using EducAR.API.Services.Interfaces;
+using EducAR.API.DTOs.Paginacion;
+using EducAR.API.Helpers;
 
 namespace EducAR.API.Services;
 
@@ -156,7 +158,7 @@ public class TutorService : ITutorService
     //         return (false, "Ocurrió un error al crear el tutor.", null);
     //     }
     // }
-   
+
     public async Task<(bool exito, string mensaje, TutorResponseDto? tutor)> Crear(TutorCreateDto dto, int idEscuela)
     {
         if (await _usuarioRepository.ExisteNombreUsuario(dto.NombreUsuario, idEscuela))
@@ -182,13 +184,13 @@ public class TutorService : ITutorService
                     .ObtenerPorUsuarioInactivo(usuarioInactivo.IdUsuario);
 
                 // Reactivar usuario
-                usuarioInactivo.Nombre         = dto.Nombre;
-                usuarioInactivo.Apellido       = dto.Apellido;
-                usuarioInactivo.Email          = dto.Email;
-                usuarioInactivo.Dni            = dto.Dni;
+                usuarioInactivo.Nombre = dto.Nombre;
+                usuarioInactivo.Apellido = dto.Apellido;
+                usuarioInactivo.Email = dto.Email;
+                usuarioInactivo.Dni = dto.Dni;
                 usuarioInactivo.HashContrasena = BCrypt.Net.BCrypt.HashPassword(dto.Contrasena);
-                usuarioInactivo.Activo         = true;
-                usuarioInactivo.FechaAct       = DateTime.Now;
+                usuarioInactivo.Activo = true;
+                usuarioInactivo.FechaAct = DateTime.Now;
                 await _usuarioRepository.Actualizar(usuarioInactivo);
                 usuario = usuarioInactivo;
 
@@ -202,7 +204,7 @@ public class TutorService : ITutorService
                 {
                     var tutorNuevo = new Tutor
                     {
-                        IdUsuario     = usuario.IdUsuario,
+                        IdUsuario = usuario.IdUsuario,
                         EsResponsable = dto.EsResponsable
                     };
                     await _tutorRepository.Crear(tutorNuevo);
@@ -213,22 +215,22 @@ public class TutorService : ITutorService
                 // Crear usuario nuevo
                 usuario = new Usuario
                 {
-                    IdRol          = ID_ROL_TUTOR,
-                    IdEscuela      = idEscuela,
-                    Dni            = dto.Dni,
-                    Nombre         = dto.Nombre,
-                    Apellido       = dto.Apellido,
-                    Email          = dto.Email,
-                    NombreUsuario  = dto.NombreUsuario,
+                    IdRol = ID_ROL_TUTOR,
+                    IdEscuela = idEscuela,
+                    Dni = dto.Dni,
+                    Nombre = dto.Nombre,
+                    Apellido = dto.Apellido,
+                    Email = dto.Email,
+                    NombreUsuario = dto.NombreUsuario,
                     HashContrasena = BCrypt.Net.BCrypt.HashPassword(dto.Contrasena),
-                    Activo         = true
+                    Activo = true
                 };
                 await _usuarioRepository.Crear(usuario);
 
                 // Crear tutor nuevo
                 var tutor = new Tutor
                 {
-                    IdUsuario     = usuario.IdUsuario,
+                    IdUsuario = usuario.IdUsuario,
                     EsResponsable = dto.EsResponsable
                 };
                 await _tutorRepository.Crear(tutor);
@@ -262,12 +264,12 @@ public class TutorService : ITutorService
             }
         }
 
-        tutor.Usuario.Nombre    = dto.Nombre;
-        tutor.Usuario.Apellido  = dto.Apellido;
-        tutor.Usuario.Email     = dto.Email;
-        tutor.Usuario.Activo    = dto.Activo;
-        tutor.EsResponsable     = dto.EsResponsable;
-     
+        tutor.Usuario.Nombre = dto.Nombre;
+        tutor.Usuario.Apellido = dto.Apellido;
+        tutor.Usuario.Email = dto.Email;
+        tutor.Usuario.Activo = dto.Activo;
+        tutor.EsResponsable = dto.EsResponsable;
+
         await _tutorRepository.Actualizar(tutor);
         return (true, "Tutor actualizado correctamente.");
     }
@@ -287,19 +289,39 @@ public class TutorService : ITutorService
     //     Email         = t.Usuario.Email,
     //     NombreUsuario = t.Usuario.NombreUsuario,
     //     EsResponsable = t.EsResponsable,
-        
+
     // };
 
     private static TutorResponseDto MapearAResponseDto(Tutor t) => new()
-{
-    IdTutor       = t.IdTutor,
-    IdUsuario     = t.IdUsuario,
-    Dni           = t.Usuario.Dni,
-    Nombre        = t.Usuario.Nombre,
-    Apellido      = t.Usuario.Apellido,
-    Email         = t.Usuario.Email,
-    NombreUsuario = t.Usuario.NombreUsuario,
-    EsResponsable = t.EsResponsable,
-    Activo        = t.Usuario.Activo
-};
+    {
+        IdTutor = t.IdTutor,
+        IdUsuario = t.IdUsuario,
+        Dni = t.Usuario.Dni,
+        Nombre = t.Usuario.Nombre,
+        Apellido = t.Usuario.Apellido,
+        Email = t.Usuario.Email,
+        NombreUsuario = t.Usuario.NombreUsuario,
+        EsResponsable = t.EsResponsable,
+        Activo = t.Usuario.Activo
+    };
+
+    public async Task<ResultadoPaginadoDto<TutorResponseDto>> ObtenerTodosPaginado(
+        int idEscuela, int pagina, int cantidad)
+    {
+        var query = await _tutorRepository.ObtenerQueryable(idEscuela);
+        var queryDto = query.Select(t => new TutorResponseDto
+        {
+            IdTutor = t.IdTutor,
+            IdUsuario = t.IdUsuario,
+            Dni = t.Usuario.Dni,
+            Nombre = t.Usuario.Nombre,
+            Apellido = t.Usuario.Apellido,
+            Email = t.Usuario.Email,
+            NombreUsuario = t.Usuario.NombreUsuario,
+            EsResponsable = t.EsResponsable,
+            Activo = t.Usuario.Activo
+        });
+
+        return await PaginacionHelper.PaginarAsync(queryDto, pagina, cantidad);
+    }
 }

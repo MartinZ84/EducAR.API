@@ -15,4 +15,5 @@ public interface IUsuarioRepository
     Task<Usuario?> ObtenerPorIdSinEscuela(int idUsuario);
     Task<Usuario?> ObtenerPerfilCompleto(int idUsuario);
     Task<Usuario?> ObtenerUsuarioInactivoPorNombre(string nombreUsuario, int idEscuela);
+    Task<IQueryable<Usuario>> ObtenerQueryable(int idEscuela);
 }

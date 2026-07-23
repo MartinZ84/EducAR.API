@@ -22,12 +22,19 @@ public class UsuariosController : ControllerBase
     private int IdEscuelaActual =>
         int.Parse(User.FindFirstValue("IdEscuela")!);
 
+    // [HttpGet]
+    // [Authorize(Roles = "Administrador")]
+    // public async Task<IActionResult> ObtenerTodos()
+    // {
+    //     var usuarios = await _usuarioService.ObtenerTodos(IdEscuelaActual);
+    //     return Ok(usuarios);
+    // }
     [HttpGet]
     [Authorize(Roles = "Administrador")]
-    public async Task<IActionResult> ObtenerTodos()
+    public async Task<IActionResult> ObtenerTodos([FromQuery] int pagina = 1, [FromQuery] int cantidad = 10)
     {
-        var usuarios = await _usuarioService.ObtenerTodos(IdEscuelaActual);
-        return Ok(usuarios);
+        var resultado = await _usuarioService.ObtenerTodosPaginado(IdEscuelaActual, pagina, cantidad);
+        return Ok(resultado);
     }
 
     [HttpGet("{id}")]

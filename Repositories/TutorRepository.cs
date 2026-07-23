@@ -49,7 +49,7 @@ public class TutorRepository : ITutorRepository
     {
         var tutor = await ObtenerPorId(idTutor, idEscuela);
         if (tutor is null) return false;
-        
+
         tutor.Usuario.Activo = false;
         tutor.FechaAct = DateTime.Now;
         await _context.SaveChangesAsync();
@@ -65,11 +65,21 @@ public class TutorRepository : ITutorRepository
 
     public async Task<Tutor> Reactivar(Tutor tutor)
     {
-        tutor.Usuario.Activo   = true;
+        tutor.Usuario.Activo = true;
         tutor.Usuario.FechaAct = DateTime.Now;
-        tutor.FechaAct         = DateTime.Now;
+        tutor.FechaAct = DateTime.Now;
         _context.Tutores.Update(tutor);
         await _context.SaveChangesAsync();
         return tutor;
+    }
+    public Task<IQueryable<Tutor>> ObtenerQueryable(int idEscuela)
+    {
+        var query = _context.Tutores
+            .Include(t => t.Usuario)
+            .Where(t => t.Usuario.IdEscuela == idEscuela && t.Usuario.Activo)
+            .OrderBy(t => t.Usuario.Apellido)
+            .AsQueryable();
+
+        return Task.FromResult(query);
     }
 }

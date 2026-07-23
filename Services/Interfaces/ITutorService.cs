@@ -1,4 +1,6 @@
 using EducAR.API.DTOs.Tutores;
+using EducAR.API.DTOs.Paginacion;
+using EducAR.API.Helpers;
 
 namespace EducAR.API.Services.Interfaces;
 
@@ -9,4 +11,5 @@ public interface ITutorService
     Task<(bool exito, string mensaje, TutorResponseDto? tutor)> Crear(TutorCreateDto dto, int idEscuela);
     Task<(bool exito, string mensaje)> Actualizar(int idTutor, int idEscuela, TutorUpdateDto dto);
     Task<bool> Eliminar(int idTutor, int idEscuela);
+    Task<ResultadoPaginadoDto<TutorResponseDto>> ObtenerTodosPaginado(int idEscuela, int pagina, int cantidad);
 }

@@ -25,19 +25,35 @@ public class MensajesController : ControllerBase
         int.Parse(User.FindFirstValue("IdEscuela")!);
 
     // GET api/mensajes/recibidos
+    // [HttpGet("recibidos")]
+    // public async Task<IActionResult> ObtenerRecibidos()
+    // {
+    //     var mensajes = await _mensajeService.ObtenerRecibidos(IdUsuarioActual);
+    //     return Ok(mensajes);
+    // }
+
+    // // GET api/mensajes/enviados
+    // [HttpGet("enviados")]
+    // public async Task<IActionResult> ObtenerEnviados()
+    // {
+    //     var mensajes = await _mensajeService.ObtenerEnviados(IdUsuarioActual);
+    //     return Ok(mensajes);
+    // }
+
     [HttpGet("recibidos")]
-    public async Task<IActionResult> ObtenerRecibidos()
+    public async Task<IActionResult> ObtenerRecibidos(
+    [FromQuery] int pagina = 1, [FromQuery] int cantidad = 10)
     {
-        var mensajes = await _mensajeService.ObtenerRecibidos(IdUsuarioActual);
-        return Ok(mensajes);
+        var resultado = await _mensajeService.ObtenerRecibidosPaginado(IdUsuarioActual, pagina, cantidad);
+        return Ok(resultado);
     }
 
-    // GET api/mensajes/enviados
     [HttpGet("enviados")]
-    public async Task<IActionResult> ObtenerEnviados()
+    public async Task<IActionResult> ObtenerEnviados(
+        [FromQuery] int pagina = 1, [FromQuery] int cantidad = 10)
     {
-        var mensajes = await _mensajeService.ObtenerEnviados(IdUsuarioActual);
-        return Ok(mensajes);
+        var resultado = await _mensajeService.ObtenerEnviadosPaginado(IdUsuarioActual, pagina, cantidad);
+        return Ok(resultado);
     }
 
     // GET api/mensajes/noleidos

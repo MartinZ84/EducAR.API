@@ -2,6 +2,8 @@ using EducAR.API.DTOs.Usuarios;
 using EducAR.API.Models;
 using EducAR.API.Repositories.Interfaces;
 using EducAR.API.Services.Interfaces;
+using EducAR.API.DTOs.Paginacion;
+using EducAR.API.Helpers;
 
 namespace EducAR.API.Services;
 
@@ -143,5 +145,26 @@ public class UsuarioService : IUsuarioService
             NombreEscuela  = usuario.Escuela.Nombre,
             UltimoAcceso   = usuario.UltimoAcceso
         };
+    }
+
+    public async Task<ResultadoPaginadoDto<UsuarioResponseDto>> ObtenerTodosPaginado(int idEscuela, int pagina, int cantidad)
+    {
+        var query = await _usuarioRepository.ObtenerQueryable(idEscuela);
+        var queryDto = query.Select(u => new UsuarioResponseDto
+        {
+            IdUsuario     = u.IdUsuario,
+            IdRol         = u.IdRol,
+            Rol           = u.Rol.Nombre,
+            IdEscuela     = u.IdEscuela,
+            Dni           = u.Dni,
+            Nombre        = u.Nombre,
+            Apellido      = u.Apellido,
+            Email         = u.Email,
+            NombreUsuario = u.NombreUsuario,
+            Activo        = u.Activo,
+            UltimoAcceso  = u.UltimoAcceso
+        });
+
+        return await PaginacionHelper.PaginarAsync(queryDto, pagina, cantidad);
     }
 }

@@ -4,6 +4,9 @@ using EducAR.API.Repositories.Interfaces;
 using EducAR.API.Services.Interfaces;
 using EducAR.API.Data;
 using Microsoft.EntityFrameworkCore;
+using EducAR.API.DTOs.Paginacion;
+
+using EducAR.API.Helpers;
 
 namespace EducAR.API.Services;
 
@@ -15,7 +18,7 @@ public class MensajeService : IMensajeService
     public MensajeService(IMensajeRepository mensajeRepository, AppDbContext context)
     {
         _mensajeRepository = mensajeRepository;
-        _context           = context;
+        _context = context;
     }
 
     public async Task<List<MensajeResumenDto>> ObtenerRecibidos(int idUsuario)
@@ -59,12 +62,12 @@ public class MensajeService : IMensajeService
         var mensaje = new Mensaje
         {
             IdUsuarioRemitente = idUsuarioRemitente,
-            IdUsuarioDestinat  = dto.IdUsuarioDestinat,
-            Asunto             = dto.Asunto,
-            MensajeTexto       = dto.MensajeTexto,
-            FechaEnvio         = DateTime.Now,
-            Leido              = false,
-            Activo             = true
+            IdUsuarioDestinat = dto.IdUsuarioDestinat,
+            Asunto = dto.Asunto,
+            MensajeTexto = dto.MensajeTexto,
+            FechaEnvio = DateTime.Now,
+            Leido = false,
+            Activo = true
         };
 
         await _mensajeRepository.Crear(mensaje);
@@ -88,24 +91,57 @@ public class MensajeService : IMensajeService
 
     private static MensajeResumenDto MapearAResumenDto(Mensaje m) => new()
     {
-        IdMensaje          = m.IdMensaje,
-        NombreRemitente    = $"{m.Remitente.Nombre} {m.Remitente.Apellido}",
+        IdMensaje = m.IdMensaje,
+        NombreRemitente = $"{m.Remitente.Nombre} {m.Remitente.Apellido}",
         NombreDestinatario = $"{m.Destinatario.Nombre} {m.Destinatario.Apellido}",
-        Asunto             = m.Asunto,
-        FechaEnvio         = m.FechaEnvio,
-        Leido              = m.Leido
+        Asunto = m.Asunto,
+        FechaEnvio = m.FechaEnvio,
+        Leido = m.Leido
     };
 
     private static MensajeResponseDto MapearAResponseDto(Mensaje m) => new()
     {
-        IdMensaje          = m.IdMensaje,
+        IdMensaje = m.IdMensaje,
         IdUsuarioRemitente = m.IdUsuarioRemitente,
-        NombreRemitente    = $"{m.Remitente.Nombre} {m.Remitente.Apellido}",
-        IdUsuarioDestinat  = m.IdUsuarioDestinat,
+        NombreRemitente = $"{m.Remitente.Nombre} {m.Remitente.Apellido}",
+        IdUsuarioDestinat = m.IdUsuarioDestinat,
         NombreDestinatario = $"{m.Destinatario.Nombre} {m.Destinatario.Apellido}",
-        Asunto             = m.Asunto,
-        MensajeTexto       = m.MensajeTexto,
-        FechaEnvio         = m.FechaEnvio,
-        Leido              = m.Leido
+        Asunto = m.Asunto,
+        MensajeTexto = m.MensajeTexto,
+        FechaEnvio = m.FechaEnvio,
+        Leido = m.Leido
     };
+    public async Task<ResultadoPaginadoDto<MensajeResumenDto>> ObtenerRecibidosPaginado(
+    int idUsuario, int pagina, int cantidad)
+    {
+        var query = await _mensajeRepository.ObtenerQueryableRecibidos(idUsuario);
+        var queryDto = query.Select(m => new MensajeResumenDto
+        {
+            IdMensaje = m.IdMensaje,
+            NombreRemitente = m.Remitente.Nombre + " " + m.Remitente.Apellido,
+            NombreDestinatario = m.Destinatario.Nombre + " " + m.Destinatario.Apellido,
+            Asunto = m.Asunto,
+            FechaEnvio = m.FechaEnvio,
+            Leido = m.Leido
+        });
+
+        return await PaginacionHelper.PaginarAsync(queryDto, pagina, cantidad);
+    }
+
+    public async Task<ResultadoPaginadoDto<MensajeResumenDto>> ObtenerEnviadosPaginado(
+        int idUsuario, int pagina, int cantidad)
+    {
+        var query = await _mensajeRepository.ObtenerQueryableEnviados(idUsuario);
+        var queryDto = query.Select(m => new MensajeResumenDto
+        {
+            IdMensaje = m.IdMensaje,
+            NombreRemitente = m.Remitente.Nombre + " " + m.Remitente.Apellido,
+            NombreDestinatario = m.Destinatario.Nombre + " " + m.Destinatario.Apellido,
+            Asunto = m.Asunto,
+            FechaEnvio = m.FechaEnvio,
+            Leido = m.Leido
+        });
+
+        return await PaginacionHelper.PaginarAsync(queryDto, pagina, cantidad);
+    }
 }

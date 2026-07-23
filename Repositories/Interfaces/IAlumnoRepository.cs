@@ -24,4 +24,5 @@ public interface IAlumnoRepository
     Task<bool> QuitarTutor(int idAlumno, int idTutor);
 
     Task<bool> GuardarCambios();
+    Task<IQueryable<Alumno>> ObtenerQueryable(int idEscuela);
 }

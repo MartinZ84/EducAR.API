@@ -74,6 +74,16 @@ builder.Services.AddScoped<IEscuelaRepository, EscuelaRepository>();
 builder.Services.AddScoped<IEscuelaService, EscuelaService>();
 
 builder.Services.AddControllers();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("EducAR_Policy", policy =>
+    {
+        policy
+            .AllowAnyOrigin()    // cualquier origen (app Android, emulador, dispositivo)
+            .AllowAnyMethod()    // GET, POST, PUT, PATCH, DELETE
+            .AllowAnyHeader();   // Authorization, Content-Type, etc.
+    });
+});
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(options =>
@@ -103,6 +113,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
+app.UseCors("EducAR_Policy");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

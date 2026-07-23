@@ -3,6 +3,8 @@ using EducAR.API.DTOs.Docentes;
 using EducAR.API.Models;
 using EducAR.API.Repositories.Interfaces;
 using EducAR.API.Services.Interfaces;
+using EducAR.API.DTOs.Paginacion;
+using EducAR.API.Helpers;
 
 namespace EducAR.API.Services;
 
@@ -35,7 +37,7 @@ public class DocenteService : IDocenteService
         var docente = await _docenteRepository.ObtenerPorId(idDocente, idEscuela);
         return docente is null ? null : MapearAResponseDto(docente);
     }
-  
+
     public async Task<(bool exito, string mensaje, DocenteResponseDto? docente)> Crear(DocenteCreateDto dto, int idEscuela)
     {
         // Validar duplicado activo
@@ -59,13 +61,13 @@ public class DocenteService : IDocenteService
             if (usuarioInactivo is not null)
             {
                 // Reactivar usuario existente
-                usuarioInactivo.Nombre         = dto.Nombre;
-                usuarioInactivo.Apellido       = dto.Apellido;
-                usuarioInactivo.Email          = dto.Email;
-                usuarioInactivo.Dni            = dto.Dni;
+                usuarioInactivo.Nombre = dto.Nombre;
+                usuarioInactivo.Apellido = dto.Apellido;
+                usuarioInactivo.Email = dto.Email;
+                usuarioInactivo.Dni = dto.Dni;
                 usuarioInactivo.HashContrasena = BCrypt.Net.BCrypt.HashPassword(dto.Contrasena);
-                usuarioInactivo.Activo         = true;
-                usuarioInactivo.FechaAct       = DateTime.Now;
+                usuarioInactivo.Activo = true;
+                usuarioInactivo.FechaAct = DateTime.Now;
                 await _usuarioRepository.Actualizar(usuarioInactivo);
                 usuario = usuarioInactivo;
             }
@@ -74,15 +76,15 @@ public class DocenteService : IDocenteService
                 // Crear nuevo usuario
                 usuario = new Usuario
                 {
-                    IdRol          = ID_ROL_DOCENTE,
-                    IdEscuela      = idEscuela,
-                    Dni            = dto.Dni,
-                    Nombre         = dto.Nombre,
-                    Apellido       = dto.Apellido,
-                    Email          = dto.Email,
-                    NombreUsuario  = dto.NombreUsuario,
+                    IdRol = ID_ROL_DOCENTE,
+                    IdEscuela = idEscuela,
+                    Dni = dto.Dni,
+                    Nombre = dto.Nombre,
+                    Apellido = dto.Apellido,
+                    Email = dto.Email,
+                    NombreUsuario = dto.NombreUsuario,
                     HashContrasena = BCrypt.Net.BCrypt.HashPassword(dto.Contrasena),
-                    Activo         = true
+                    Activo = true
                 };
                 await _usuarioRepository.Crear(usuario);
             }
@@ -98,7 +100,7 @@ public class DocenteService : IDocenteService
                 var docente = new Docente
                 {
                     IdUsuario = usuario.IdUsuario,
-                    Activo    = true
+                    Activo = true
                 };
                 await _docenteRepository.Crear(docente);
             }
@@ -121,11 +123,11 @@ public class DocenteService : IDocenteService
         if (docente is null)
             return (false, "Docente no encontrado.");
 
-        docente.Usuario.Nombre   = dto.Nombre;
+        docente.Usuario.Nombre = dto.Nombre;
         docente.Usuario.Apellido = dto.Apellido;
-        docente.Usuario.Email    = dto.Email;
-        docente.Usuario.Activo   = dto.Activo;
-        docente.Activo           = dto.Activo;
+        docente.Usuario.Email = dto.Email;
+        docente.Usuario.Activo = dto.Activo;
+        docente.Activo = dto.Activo;
 
         await _docenteRepository.Actualizar(docente);
         return (true, "Docente actualizado correctamente.");
@@ -138,13 +140,32 @@ public class DocenteService : IDocenteService
 
     private static DocenteResponseDto MapearAResponseDto(Docente d) => new()
     {
-        IdDocente     = d.IdDocente,
-        IdUsuario     = d.IdUsuario,
-        Dni           = d.Usuario.Dni,
-        Nombre        = d.Usuario.Nombre,
-        Apellido      = d.Usuario.Apellido,
-        Email         = d.Usuario.Email,
+        IdDocente = d.IdDocente,
+        IdUsuario = d.IdUsuario,
+        Dni = d.Usuario.Dni,
+        Nombre = d.Usuario.Nombre,
+        Apellido = d.Usuario.Apellido,
+        Email = d.Usuario.Email,
         NombreUsuario = d.Usuario.NombreUsuario,
-        Activo        = d.Activo
+        Activo = d.Activo
     };
+
+    public async Task<ResultadoPaginadoDto<DocenteResponseDto>> ObtenerTodosPaginado(
+    int idEscuela, int pagina, int cantidad)
+    {
+        var query = await _docenteRepository.ObtenerQueryable(idEscuela);
+        var queryDto = query.Select(d => new DocenteResponseDto
+        {
+            IdDocente = d.IdDocente,
+            IdUsuario = d.IdUsuario,
+            Dni = d.Usuario.Dni,
+            Nombre = d.Usuario.Nombre,
+            Apellido = d.Usuario.Apellido,
+            Email = d.Usuario.Email,
+            NombreUsuario = d.Usuario.NombreUsuario,
+            Activo = d.Activo
+        });
+
+        return await PaginacionHelper.PaginarAsync(queryDto, pagina, cantidad);
+    }
 }

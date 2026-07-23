@@ -144,4 +144,14 @@ public class AlumnoRepository : IAlumnoRepository
         var filas = await _context.SaveChangesAsync();
         return filas > 0;
     }
+
+    public Task<IQueryable<Alumno>> ObtenerQueryable(int idEscuela)
+    {
+        var query = _context.Alumnos
+            .Where(a => a.IdEscuela == idEscuela && a.Activo)
+            .OrderBy(a => a.Apellido)
+            .AsQueryable();
+
+        return Task.FromResult(query);
+    }
 }

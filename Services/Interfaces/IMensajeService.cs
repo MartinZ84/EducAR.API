@@ -1,4 +1,6 @@
 using EducAR.API.DTOs.Mensajes;
+using EducAR.API.DTOs.Paginacion;
+using EducAR.API.Helpers;
 
 namespace EducAR.API.Services.Interfaces;
 
@@ -11,4 +13,6 @@ public interface IMensajeService
     Task<bool> MarcarLeido(int idMensaje, int idUsuario);
     Task<bool> Eliminar(int idMensaje, int idUsuario);
     Task<int> ContarNoLeidos(int idUsuario);
+    Task<ResultadoPaginadoDto<MensajeResumenDto>> ObtenerRecibidosPaginado(int idUsuario, int pagina, int cantidad);
+    Task<ResultadoPaginadoDto<MensajeResumenDto>> ObtenerEnviadosPaginado(int idUsuario, int pagina, int cantidad);
 }

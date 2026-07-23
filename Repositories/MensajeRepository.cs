@@ -59,7 +59,7 @@ public class MensajeRepository : IMensajeRepository
                                       m.IdUsuarioDestinat == idUsuario);
         if (mensaje is null) return false;
 
-        mensaje.Leido    = true;
+        mensaje.Leido = true;
         mensaje.FechaAct = DateTime.Now;
         await _context.SaveChangesAsync();
         return true;
@@ -70,7 +70,7 @@ public class MensajeRepository : IMensajeRepository
         var mensaje = await ObtenerPorId(idMensaje, idUsuario);
         if (mensaje is null) return false;
 
-        mensaje.Activo   = false;
+        mensaje.Activo = false;
         mensaje.FechaAct = DateTime.Now;
         await _context.SaveChangesAsync();
         return true;
@@ -82,5 +82,29 @@ public class MensajeRepository : IMensajeRepository
             .CountAsync(m => m.IdUsuarioDestinat == idUsuario &&
                              !m.Leido &&
                              m.Activo);
+    }
+
+    public Task<IQueryable<Mensaje>> ObtenerQueryableRecibidos(int idUsuario)
+    {
+        var query = _context.Mensajes
+            .Include(m => m.Remitente)
+            .Include(m => m.Destinatario)
+            .Where(m => m.IdUsuarioDestinat == idUsuario && m.Activo)
+            .OrderByDescending(m => m.FechaEnvio)
+            .AsQueryable();
+
+        return Task.FromResult(query);
+    }
+
+    public Task<IQueryable<Mensaje>> ObtenerQueryableEnviados(int idUsuario)
+    {
+        var query = _context.Mensajes
+            .Include(m => m.Remitente)
+            .Include(m => m.Destinatario)
+            .Where(m => m.IdUsuarioRemitente == idUsuario && m.Activo)
+            .OrderByDescending(m => m.FechaEnvio)
+            .AsQueryable();
+
+        return Task.FromResult(query);
     }
 }

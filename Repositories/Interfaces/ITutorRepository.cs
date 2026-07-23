@@ -11,4 +11,5 @@ public interface ITutorRepository
     Task<bool> Eliminar(int idTutor, int idEscuela);
     Task<Tutor?> ObtenerPorUsuarioInactivo(int idUsuario);
     Task<Tutor> Reactivar(Tutor tutor);
+    Task<IQueryable<Tutor>> ObtenerQueryable(int idEscuela);
 }

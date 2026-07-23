@@ -1,4 +1,5 @@
 using EducAR.API.DTOs.Usuarios;
+using EducAR.API.DTOs.Paginacion;
 
 namespace EducAR.API.Services.Interfaces;
 
@@ -11,4 +12,5 @@ public interface IUsuarioService
     Task<bool> Eliminar(int idUsuario, int idEscuela);
     Task<(bool exito, string mensaje)> CambiarContrasena(int idUsuario, CambiarContrasenaDto dto);
     Task<PerfilResponseDto?> ObtenerPerfil(int idUsuario);
+    Task<ResultadoPaginadoDto<UsuarioResponseDto>> ObtenerTodosPaginado(int idEscuela, int pagina, int cantidad);
 }

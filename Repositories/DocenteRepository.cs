@@ -66,10 +66,21 @@ public class DocenteRepository : IDocenteRepository
 
     public async Task<Docente> Reactivar(Docente docente)
     {
-        docente.Activo   = true;
+        docente.Activo = true;
         docente.FechaAct = DateTime.Now;
         _context.Docentes.Update(docente);
         await _context.SaveChangesAsync();
         return docente;
+    }
+
+    public Task<IQueryable<Docente>> ObtenerQueryable(int idEscuela)
+    {
+        var query = _context.Docentes
+            .Include(d => d.Usuario)
+            .Where(d => d.Usuario.IdEscuela == idEscuela && d.Activo)
+            .OrderBy(d => d.Usuario.Apellido)
+            .AsQueryable();
+
+        return Task.FromResult(query);
     }
 }
