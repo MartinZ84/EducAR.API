@@ -62,4 +62,14 @@ public class AlumnoTutorController : ControllerBase
 
         return Ok(new { mensaje });
     }
+
+    // GET api/alumnotutor/mis-alumnos
+    [HttpGet("mis-alumnos")]
+    [Authorize(Roles = "Tutor")]
+    public async Task<IActionResult> ObtenerMisAlumnos()
+    {
+        var idUsuario = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var alumnos = await _alumnoTutorService.ObtenerMisAlumnos(idUsuario, IdEscuelaActual);
+        return Ok(alumnos);
+    }
 }

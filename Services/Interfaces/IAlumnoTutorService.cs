@@ -8,5 +8,6 @@ public interface IAlumnoTutorService
     Task<List<AlumnoTutorResponseDto>> ObtenerPorTutor(int idTutor, int idEscuela);
     Task<(bool exito, string mensaje, AlumnoTutorResponseDto? relacion)> Asociar(AlumnoTutorCreateDto dto, int idEscuela);
     Task<(bool exito, string mensaje)> Desasociar(int idAlumnoTutor, int idEscuela);
+    Task<List<AlumnoTutorResponseDto>> ObtenerMisAlumnos(int idUsuario, int idEscuela);
     
 }

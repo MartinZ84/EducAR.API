@@ -9,4 +9,5 @@ public interface IDocenteMateriaCursoService
     Task<List<DocenteMateriaCursoResponseDto>> ObtenerPorCursoYMateria(int idCurso, int idMateria, int idEscuela);
     Task<(bool exito, string mensaje, DocenteMateriaCursoResponseDto? asignacion)> Asignar(DocenteMateriaCursoCreateDto dto, int idEscuela);
     Task<(bool exito, string mensaje)> Desasignar(int idDocenteMateriaCurso, int idEscuela);
+    Task<List<DocenteMateriaCursoResponseDto>> ObtenerMisCursos(int idUsuario, int idEscuela);
 }

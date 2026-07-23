@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using EducAR.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,6 +68,10 @@ builder.Services.AddScoped<IAlumnoTutorRepository, AlumnoTutorRepository>();
 builder.Services.AddScoped<IAlumnoTutorService, AlumnoTutorService>();
 builder.Services.AddScoped<IDocenteMateriaCursoRepository, DocenteMateriaCursoRepository>();
 builder.Services.AddScoped<IDocenteMateriaCursoService, DocenteMateriaCursoService>();
+builder.Services.AddScoped<IEscuelaRepository, EscuelaRepository>();
+builder.Services.AddScoped<IEscuelaService, EscuelaService>();
+builder.Services.AddScoped<IEscuelaRepository, EscuelaRepository>();
+builder.Services.AddScoped<IEscuelaService, EscuelaService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -97,6 +102,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

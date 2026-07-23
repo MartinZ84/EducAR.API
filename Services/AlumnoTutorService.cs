@@ -123,4 +123,16 @@ public class AlumnoTutorService : IAlumnoTutorService
         EsResponsablePrinc = at.EsResponsablePrinc,
         Activo             = at.Activo
     };
+
+    public async Task<List<AlumnoTutorResponseDto>> ObtenerMisAlumnos(int idUsuario, int idEscuela)
+    {
+        // Obtener el IdTutor a partir del IdUsuario del token
+        var tutor = await _context.Tutores
+            .FirstOrDefaultAsync(t => t.IdUsuario == idUsuario);
+
+        if (tutor is null) return new List<AlumnoTutorResponseDto>();
+
+        var relaciones = await _alumnoTutorRepository.ObtenerPorTutor(tutor.IdTutor);
+        return relaciones.Select(MapearAResponseDto).ToList();
+    }
 }

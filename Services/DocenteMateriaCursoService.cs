@@ -138,4 +138,16 @@ public class DocenteMateriaCursoService : IDocenteMateriaCursoService
         FechaAsignacion       = dmc.FechaAsignacion,
         Activo                = dmc.Activo
     };
+
+    public async Task<List<DocenteMateriaCursoResponseDto>> ObtenerMisCursos(int idUsuario, int idEscuela)
+    {
+        // Obtener el IdDocente a partir del IdUsuario del token
+        var docente = await _context.Docentes
+            .FirstOrDefaultAsync(d => d.IdUsuario == idUsuario);
+
+        if (docente is null) return new List<DocenteMateriaCursoResponseDto>();
+
+        var asignaciones = await _docenteMateriaCursoRepository.ObtenerPorDocente(docente.IdDocente);
+        return asignaciones.Select(MapearAResponseDto).ToList();
+    }
 }

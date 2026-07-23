@@ -72,4 +72,14 @@ public class DocenteMateriaCursoController : ControllerBase
 
         return Ok(new { mensaje });
     }
+
+    // GET api/docentemateriacurso/mis-cursos
+    [HttpGet("mis-cursos")]
+    [Authorize(Roles = "Docente")]
+    public async Task<IActionResult> ObtenerMisCursos()
+    {
+        var idUsuario = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var cursos = await _docenteMateriaCursoService.ObtenerMisCursos(idUsuario, IdEscuelaActual);
+        return Ok(cursos);
+    }
 }
